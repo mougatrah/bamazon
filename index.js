@@ -1,6 +1,7 @@
 var mysql = require("mysql");
- var inquirer = require("inquirer");
- require('dotenv').config();
+var inquirer = require("inquirer");
+var Product = require("./product.js");
+require('dotenv').config();
 
 
 
@@ -13,59 +14,123 @@ console.log(" | |_) / ____ \\| |  | |/ ____ \\ / /__| |__| | |\\  |");
 console.log(" |____/_/    \\_\\_|  |_/_/    \\_|_____|\\____/|_| \\_|");
 
 var connection = mysql.createConnection({
-    host: "localhost",
-  
-    port: 3306,
-  
-    user: "root",
+  host: "localhost",
 
-    password: "password",
-    database: "bamazon"
-  });
+  port: 3306,
 
-  connection.connect(function(err){
-      if(err) throw err;
+  user: "root",
 
-      start();
-  });
+  password: "password",
+  database: "bamazon"
+});
 
-  function start(){
+connection.connect(function (err) {
+  if (err) throw err;
 
-    var availableProducts = [];
-    connection.query("SELECT * FROM products", function(err, res){
-       
-        for(let i in res){
-           availableProducts.push(`Name: ${res[i].item_name} \n\tPrice: $${res[i].price}\n\tStock: ${res[i].stock_quantity}`);
-       }
-        inquirer.prompt([{
-            type: "list",
-            message: "Select a product:",
-            name:"select",
-            choices: availableProducts.length > 0 ? availableProducts : ["Empty..."],
-            pageSize: 100
-            
-        }]).then(function(user){
-            console.log("You chose " + user.select);
-            start();
-        });
-    
+  start();
+});
+var menu = {
+  available: "See available products.",
+  purchase: "Purchase a product.",
+  array: function () {
+    var arr = [];
+    for (let i in this) {
+      if (typeof this[i] != "function") {
+        arr.push(this[i]);
+      }
 
+    }
+    return arr;
+
+  }
+
+}
+
+
+
+function start() {
+
+  var availableProducts = [];
+  function availableChoices() {
+
+    var array = [];
+    for (let i in availableProducts) {
+      array.push(availableProducts[i].item_name);
+    }
+    return array;
+  }
+
+  function displayAvailabe() {
+    console.table(availableProducts);
+    update();
+  }
+
+  function getProducts() {
+    connection.query("SELECT * FROM products", function (err, res) {
+      for (let i in res) {
+        availableProducts.push(new Product(res[i].item_name, res[i].department_name, res[i].price, res[i].stock_quantity));
+      }
     });
-    
+   
   }
-  if (process.platform === "win32") {
-    require("readline")
-      .createInterface({
-        input: process.stdin,
-        output: process.stdout
-      })
-      .on("SIGINT", function () {
-        process.emit("SIGINT");
-      });
+
+  function buyProduct() {
+    var array = availableChoices() ? availableChoices() : [];
+    inquirer.prompt([{
+      type: "list",
+      message: "Select a product to buy:",
+      name: "select",
+      choices: array.length ? array : ["NOTHING!!!"],
+      pageSize: 100
+
+    }]).then(function (user) {
+      console.log("You chose " + user.select);
+     
+         getProducts();
+         update();
+       
+
+   
+    }).catch(function(err){
+      console.log("UH OH!!!!");
+      console.log(err);
+      
+    });
+
   }
-  
-  process.on("SIGINT", function () {
-    // graceful shutdown
-    connection.end();
-    process.exit();
-  });
+
+  function update() {
+
+    inquirer.prompt([{
+      type: "list",
+      message: "How may we assist you today?",
+      name: "select",
+      choices: menu.array(),
+      pageSize: 100
+
+    }]).then(function (user) {
+      console.log("You chose " + user.select);
+      switch (user.select) {
+        case menu.available:
+          displayAvailabe();
+          break;
+        case menu.purchase:
+          buyProduct();
+          break;
+        default:
+          console.log("We have failed to communicate.");
+          update();
+          break;
+      }
+    });
+
+  }
+  getProducts();
+  update();
+}
+
+
+
+
+
+
