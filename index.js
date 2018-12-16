@@ -55,7 +55,7 @@ function start() {
     connection.query("SELECT * FROM products", function (err, res) {
       availableProducts = [];
       for (let i in res) {
-        availableProducts.push(new Product(res[i].id, res[i].item_name, res[i].department_name, res[i].price, res[i].stock_quantity));
+        availableProducts.push(new Product(res[i].item_name, res[i].department_name, res[i].price, res[i].stock_quantity));
       }
 
     });

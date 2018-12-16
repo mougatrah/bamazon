@@ -1,5 +1,5 @@
-function Product(id, name, dept, price, stock_quantity){
-    this.id = id;
+function Product( name, dept, price, stock_quantity){
+
     this.item_name = name;
     this.department_name = dept;
     this.price = price;
