@@ -280,7 +280,7 @@ function start() {
                                 "department_name": res[dept].department_name,
                                 "over_head_costs": res[dept].over_head_costs,
                                 "product_sales": 0,
-                                "total_profit": 0
+                                "total_profit": 0 - res[dept].over_head_costs
                             });
                         }
 
