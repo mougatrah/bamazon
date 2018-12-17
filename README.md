@@ -62,3 +62,8 @@ Use the prompt menus to view products, restock or add a product.
 ## Add Product
 
 ![add product](./imgs/add.gif)
+
+## Add Department And View Sales
+
+![view sales](./imgs/sales.gif)
+ 

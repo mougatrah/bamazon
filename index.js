@@ -63,7 +63,7 @@ function start() {
   }
   function purchase(item, quantity, price) {
     console.log(`You spent $${(price * quantity).toFixed(2)}`)
-    connection.query(`UPDATE products SET stock_quantity = stock_quantity - ${quantity} WHERE item_name = "${item}"`, function (err, res) {
+    connection.query(`UPDATE products SET stock_quantity = stock_quantity - ${quantity}, product_sales = product_sales + ${Math.round(price * quantity)} WHERE item_name = "${item}"`, function (err, res) {
       if (err) throw err;
       console.log(res.message);
       getProducts();
@@ -224,6 +224,7 @@ function start() {
 
   function quit(){
     connection.end();
+    console.clear();
     console.log("Thank you for shopping with");
     logo.display();
     process.exit();
